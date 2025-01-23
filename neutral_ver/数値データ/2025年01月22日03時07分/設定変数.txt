@@ -1,0 +1,6 @@
+cliffcost : 5
+slip_prob : 0.1
+episodes : 30001
+gamma : 0.9999
+max_step : 200
+step_size : 0.001

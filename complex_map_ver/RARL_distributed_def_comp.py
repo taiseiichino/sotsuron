@@ -22,7 +22,7 @@ def distributed_RARL(Lambda, episodes=30001, step_size=0.0003, slip_prob = 0.0):
     # カスタムマップの定義
     custom_grid = get_custom_map_comp()
 
-    # 環境を登録
+    """# 環境を登録
     register(
         id='StochasticCliffWalking-v0',  # 環境ID
         entry_point='stochastic_cliff_env:StochasticCliffWalkingEnv',  # 環境クラスへのパス
@@ -30,7 +30,8 @@ def distributed_RARL(Lambda, episodes=30001, step_size=0.0003, slip_prob = 0.0):
     )
 
     # 登録済みのカスタム環境をロード
-    env = gym.make('StochasticCliffWalking-v0')
+    env = gym.make('StochasticCliffWalking-v0')"""
+    env = StochasticCliffWalkingEnv(grid=custom_grid)
 
     # 環境をテスト
     # 環境を初期化
@@ -89,7 +90,7 @@ def distributed_RARL(Lambda, episodes=30001, step_size=0.0003, slip_prob = 0.0):
             elif a1_t > 1:
                 #print(f'get_action_2前のstate:{state}')#デバッグ用
                 a1_action, a1_nexteta_index= agent1.get_action_2(a1_state_index, a1_eta_index)#a_t,Ieta_t+1を取得(actionはint, probはvariable(float))
-            a1_next_state, a1_cost, a1_terminated, a1_truncated, a1_info_nan = env.step(a1_action)#s_t+1,c_tを取得(next_stateはnp.int64)
+            a1_next_state, a1_cost, a1_terminated, a1_truncated, a1_info_nan = env.step(action=a1_action, agent_number=1)#s_t+1,c_tを取得(next_stateはnp.int64)
             #print(f't : {t}')
             #print(f'とったaction : {action}')
             #print(f'現在位置state : {next_state}')
@@ -122,7 +123,7 @@ def distributed_RARL(Lambda, episodes=30001, step_size=0.0003, slip_prob = 0.0):
             elif a2_t > 1:
                 #print(f'get_action_2前のstate:{state}')#デバッグ用
                 a2_action, a2_nexteta_index= agent2.get_action_2(a2_state_index, a2_eta_index)#a_t,Ieta_t+1を取得(actionはint, probはvariable(float))
-            a2_next_state, a2_cost, a2_terminated, a2_truncated, a2_info_nan = env.step(a2_action)#s_t+1,c_tを取得(next_stateはnp.int64)
+            a2_next_state, a2_cost, a2_terminated, a2_truncated, a2_info_nan = env.step(action=a2_action, agent_number=2)#s_t+1,c_tを取得(next_stateはnp.int64)
             #print(f't : {t}')
             #print(f'とったaction : {action}')
             #print(f'現在位置state : {next_state}')
@@ -155,7 +156,7 @@ def distributed_RARL(Lambda, episodes=30001, step_size=0.0003, slip_prob = 0.0):
             elif a3_t > 1:
                 #print(f'get_action_2前のstate:{state}')#デバッグ用
                 a3_action, a3_nexteta_index= agent3.get_action_2(a3_state_index, a3_eta_index)#a_t,Ieta_t+1を取得(actionはint, probはvariable(float))
-            a3_next_state, a3_cost, a3_terminated, a3_truncated, a3_info_nan = env.step(a3_action)#s_t+1,c_tを取得(next_stateはnp.int64)
+            a3_next_state, a3_cost, a3_terminated, a3_truncated, a3_info_nan = env.step(action=a3_action, agent_number=3)#s_t+1,c_tを取得(next_stateはnp.int64)
             #print(f't : {t}')
             #print(f'とったaction : {action}')
             #print(f'現在位置state : {next_state}')

@@ -5,9 +5,10 @@ from gym import spaces
 import numpy as np
 import random
 
-class StochasticCliffWalkingEnv(gym.Env):
+#class StochasticCliffWalkingEnv(gym.Env):
+class StochasticCliffWalkingEnv():
     def __init__(self, grid, slip_prob=0.0):
-        super().__init__()
+        #super().__init__()
         self.grid = grid
         self.n_rows, self.n_cols = grid.shape
         self.start = np.argwhere(grid == 'S')[0]#スタート位置の座標をNumpyの配列にしてself.startに代入
@@ -59,7 +60,7 @@ class StochasticCliffWalkingEnv(gym.Env):
         info = {}
         return self._get_state(), info
 
-    def step(self, action):
+    def step(self, action, agent_number):
         moves = {
             0: (-1, 0),  # 上
             1: (0, 1),   # 右
@@ -90,7 +91,13 @@ class StochasticCliffWalkingEnv(gym.Env):
         if cell == 'C':  # 崖
             cost += self.cost_space[1]
             terminated = False#あとでTrueに変える
-            self.current_pos = self.start
+            #self.current_pos = self.start
+            if agent_number == 1:
+                self.current_pos = self.start
+            elif agent_number == 2:
+                self.current_pos = np.array([0,2], dtype=np.int64)
+            elif agent_number == 3:
+                self.current_pos = np.array([3,0], dtype=np.int64)
 
         elif np.array_equal(self.current_pos, self.goal):  # ゴール
             cost += 0
@@ -107,6 +114,8 @@ class StochasticCliffWalkingEnv(gym.Env):
         info = {}
 
         return self._get_state(), cost, terminated, truncated, info
+    
+    
 
     def render(self):
         env = np.copy(self.grid)

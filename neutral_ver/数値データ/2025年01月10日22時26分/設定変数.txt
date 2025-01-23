@@ -1,0 +1,7 @@
+episodes : 30001
+kappa : 0.5
+gamma : 0.9999
+lambda : 0.0
+alpha_risk : 0.05
+max_step : 200
+step_size : 0.003

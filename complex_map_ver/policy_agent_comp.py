@@ -56,13 +56,13 @@ class Policy1:
         for nexteta_index in range(self.eta_size):
             theta1[42][nexteta_index] = np.array([1, 1, np.nan, np.nan])
         for nexteta_index in range(self.eta_size):
-            theta1[15][nexteta_index] = np.array([1, np.nan, np.nan, 1])
+            theta1[47][nexteta_index] = np.array([1, np.nan, np.nan, 1])
         for nexteta_index in range(self.eta_size):
             theta1[43][nexteta_index] = np.array([1, 1, np.nan, 1])
             theta1[44][nexteta_index] = np.array([1, 1, np.nan, 1])
             theta1[45][nexteta_index] = np.array([1, 1, np.nan, 1])
             theta1[46][nexteta_index] = np.array([1, 1, np.nan, 1])
-        #self.theta1 = theta1
+
         """
         theta1は(self.state_size, self.eta_size, self.action_size)の3次元配列
         self.theta1[state_index][eta_index][action_index]でθ(s1,a1,η2)を参照できる
@@ -136,7 +136,7 @@ class Policy2:
                 theta2[42][eta_index][nexteta_index] = np.array([1, 1, np.nan, np.nan])
         for eta_index in range(self.eta_size):
             for nexteta_index in range(self.eta_size):
-                theta2[15][eta_index][nexteta_index] = np.array([1, np.nan, np.nan, 1])
+                theta2[47][eta_index][nexteta_index] = np.array([1, np.nan, np.nan, 1])
         for eta_index in range(self.eta_size):
             for nexteta_index in range(self.eta_size):
                 theta2[43][eta_index][nexteta_index] = np.array([1, 1, np.nan, 1])
@@ -459,6 +459,8 @@ class Agent:
                         grad = (i_s * (i_nexteta * i_a + adjustment -self.pi1.softmax_probs()[state_index][nexteta_index][action])) * G
                         #theta１の更新
                         new_theta1[state_index][nexteta_index][action] = P[agent_index - 1][agent_index - 1] * self.pi1.theta1[state_index][nexteta_index][action] + P[agent_index - 1][other_agent1[0] - 1] * other_agent1[1].pi1.theta1[state_index][nexteta_index][action] + P[agent_index - 1][other_agent2[0] - 1] * other_agent2[1].pi1.theta1[state_index][nexteta_index][action] - (learning_rate / z[agent_index - 1]) * grad
+                    else:
+                        new_theta1[state_index][nexteta_index][action] = np.nan
         max_theta = np.nanmax(new_theta1, axis=(1,2), keepdims=True)
         new_theta1 = new_theta1 - max_theta
         self.pi1.theta1 = new_theta1
@@ -497,7 +499,6 @@ class Agent:
                 new_cost = data['new_cost']
                 G = new_cost
             #print(f'step:{step}, G:{G}, ')
-
             #目的関数の勾配の更新
             for state_index in range(self.state_size):
                 for eta_index in range(self.eta_size):
@@ -520,10 +521,12 @@ class Agent:
                                     i_a = 1
                                 grad = (i_s * i_eta * (i_nexteta * i_a + adjustment - self.pi2.softmax_probs()[state_index][eta_index][nexteta_index][action])) * G
                                 #theta１の更新
-                                new_theta2[state_index][eta_index][nexteta_index][action] -= learning_rate * grad
+                                new_theta2[state_index][eta_index][nexteta_index][action] -= (learning_rate / z[agent_index - 1]) * grad
                                 
                                 if step == 1:
                                     new_theta2[state_index][eta_index][nexteta_index][action] += P[agent_index - 1][agent_index - 1] * self.pi2.theta2[state_index][eta_index][nexteta_index][action] + P[agent_index - 1][other_agent1[0] - 1] * other_agent1[1].pi2.theta2[state_index][eta_index][nexteta_index][action] + P[agent_index - 1][other_agent2[0] - 1] * other_agent2[1].pi2.theta2[state_index][eta_index][nexteta_index][action]
+                            else:
+                                new_theta2[state_index][eta_index][nexteta_index][action] = np.nan
         max_theta = np.nanmax(new_theta2, axis=(2, 3), keepdims=True)  # (nexteta, action) に渡る最大値
         new_theta2 = new_theta2 - max_theta  # 数値安定化した theta
         self.pi2.theta2 = new_theta2
