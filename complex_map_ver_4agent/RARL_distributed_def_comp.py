@@ -49,34 +49,42 @@ def distributed_RARL(Lambda, episodes=20001, step_size=0.0003, slip_prob = 0.0):
     agent2 = Agent(kappa=0.5, eta_size=env.eta_space.n, Lambda=Lambda, alpha_risk=0.05, grid_shape=[env.n_rows, env.n_cols], eta_space=env.cost_space, grid=custom_grid)
     agent3 = Agent(kappa=0.5, eta_size=env.eta_space.n, Lambda=Lambda, alpha_risk=0.05, grid_shape=[env.n_rows, env.n_cols], eta_space=env.cost_space, grid=custom_grid)
     agent4 = Agent(kappa=0.5, eta_size=env.eta_space.n, Lambda=Lambda, alpha_risk=0.05, grid_shape=[env.n_rows, env.n_cols], eta_space=env.cost_space, grid=custom_grid)
-    agent5 = Agent(kappa=0.5, eta_size=env.eta_space.n, Lambda=Lambda, alpha_risk=0.05, grid_shape=[env.n_rows, env.n_cols], eta_space=env.cost_space, grid=custom_grid)
+    #agent5 = Agent(kappa=0.5, eta_size=env.eta_space.n, Lambda=Lambda, alpha_risk=0.05, grid_shape=[env.n_rows, env.n_cols], eta_space=env.cost_space, grid=custom_grid)
 
     a1_cost_history = []
     a1_cost_list = []
+    a1_p1_gradnorm = []
+    a1_p2_gradnorm = []
     a2_cost_history = []
     a2_cost_list = []
+    a2_p1_gradnorm = []
+    a2_p2_gradnorm = []
     a3_cost_history = []
     a3_cost_list = []
+    a3_p1_gradnorm = []
+    a3_p2_gradnorm = []
     a4_cost_history = []
     a4_cost_list = []
-    a5_cost_history = []
-    a5_cost_list = []
+    a4_p1_gradnorm = []
+    a4_p2_gradnorm = []
+
+    """a5_cost_history = []
+    a5_cost_list = []"""
     
 
 
     P = [
-        [1/15, 2/15, 3/15, 4/15, 5/15], 
-        [1/15, 2/15, 3/15, 4/15, 5/15], 
-        [1/15, 2/15, 3/15, 4/15, 5/15], 
-        [1/15, 2/15, 3/15, 4/15, 5/15], 
-        [1/15, 2/15, 3/15, 4/15, 5/15], 
+        [1/10, 2/10, 3/10, 4/10], 
+        [1/10, 2/10, 3/10, 4/10], 
+        [1/10, 2/10, 3/10, 4/10], 
+        [1/10, 2/10, 3/10, 4/10], 
     ]
 
-    z1 = [1, 0, 0, 0, 0]
-    z2 = [0, 1, 0, 0, 0]
-    z3 = [0, 0, 1, 0, 0]
-    z4 = [0, 0, 0, 1, 0]
-    z5 = [0, 0, 0, 0, 1]
+    z1 = [1, 0, 0, 0]
+    z2 = [0, 1, 0, 0]
+    z3 = [0, 0, 1, 0]
+    z4 = [0, 0, 0, 1]
+    #z5 = [0, 0, 0, 0]
 
     """print('初期値')
     for state_row in range(agent.grid_shape[0]):
@@ -125,7 +133,7 @@ def distributed_RARL(Lambda, episodes=20001, step_size=0.0003, slip_prob = 0.0):
 
         """agent2の軌跡の生成"""
         a2_t = 1
-        a2_state_index, a2_info = env.reset(start_pos=[6, 3])
+        a2_state_index, a2_info = env.reset(start_pos=[5, 2])
         #print(f'first state : {state_index}')
         #print(f't : {t}')
         #env.render()
@@ -192,7 +200,7 @@ def distributed_RARL(Lambda, episodes=20001, step_size=0.0003, slip_prob = 0.0):
 
         """agent4の軌跡の生成"""
         a4_t = 1
-        a4_state_index, a4_info = env.reset(start_pos=[0, 1])
+        a4_state_index, a4_info = env.reset(start_pos=[0, 0])
         #print(f'first state : {state_index}')
         #print(f't : {t}')
         #env.render()
@@ -223,9 +231,9 @@ def distributed_RARL(Lambda, episodes=20001, step_size=0.0003, slip_prob = 0.0):
 
             a4_t += 1
             #print('episode:' + str(episode) + "done")
-        """agent5の軌跡の生成"""
-        a5_t = 1
-        a5_state_index, a5_info = env.reset(start_pos=[2, 0])
+        """""agent5の軌跡の生成"""
+        """a5_t = 1
+        a5_state_index, a5_info = env.reset(start_pos=[0, 0])
         #print(f'first state : {state_index}')
         #print(f't : {t}')
         #env.render()
@@ -254,7 +262,7 @@ def distributed_RARL(Lambda, episodes=20001, step_size=0.0003, slip_prob = 0.0):
         
 
 
-            a5_t += 1
+            a5_t += 1"""
             #print('episode:' + str(episode) + "done")
         
             #print('episode:' + str(episode) + "done")
@@ -264,27 +272,27 @@ def distributed_RARL(Lambda, episodes=20001, step_size=0.0003, slip_prob = 0.0):
 
         """各エージェントの推定値の更新"""
         #print('update pi1')
-        agent1.update_pi1_SGD_distributed(agent_index=1, P=P, z=z1, other_agent1=(2, agent2), other_agent2=(3, agent3), other_agent3=(4, agent4), other_agent4=(5, agent5), learning_rate=step_size, kappa=kappa)
+        a1_p1_gradnorm.append(agent1.update_pi1_SGD_distributed(agent_index=1, P=P, z=z1, other_agent1=(2, agent2), other_agent2=(3, agent3), other_agent3=(4, agent4), learning_rate=step_size, kappa=kappa))
         #print('update pi2')
-        agent1.update_pi2_SGD_distributed(agent_index=1, P=P, z=z1, other_agent1=(2, agent2), other_agent2=(3, agent3), other_agent3=(4, agent4), other_agent4=(5, agent5), learning_rate=step_size, kappa=kappa)
+        a1_p2_gradnorm.append(agent1.update_pi2_SGD_distributed(agent_index=1, P=P, z=z1, other_agent1=(2, agent2), other_agent2=(3, agent3), other_agent3=(4, agent4), learning_rate=step_size, kappa=kappa))
 
         #print('update pi1')
-        agent2.update_pi1_SGD_distributed(agent_index=2, P=P, z=z2, other_agent1=(1, agent1), other_agent2=(3, agent3), other_agent3=(4, agent4) , other_agent4=(5, agent5),learning_rate=step_size, kappa=kappa)
+        a2_p1_gradnorm.append(agent2.update_pi1_SGD_distributed(agent_index=2, P=P, z=z2, other_agent1=(1, agent1), other_agent2=(3, agent3), other_agent3=(4, agent4) ,learning_rate=step_size, kappa=kappa))
         #print('update pi2')
-        agent2.update_pi2_SGD_distributed(agent_index=2, P=P, z=z2, other_agent1=(1, agent1), other_agent2=(3, agent3), other_agent3=(4, agent4) , other_agent4=(5, agent5), learning_rate=step_size, kappa=kappa)
+        a2_p2_gradnorm.append(agent2.update_pi2_SGD_distributed(agent_index=2, P=P, z=z2, other_agent1=(1, agent1), other_agent2=(3, agent3), other_agent3=(4, agent4) , learning_rate=step_size, kappa=kappa))
 
         #print('update pi1')
-        agent3.update_pi1_SGD_distributed(agent_index=3, P=P, z=z3, other_agent1=(1, agent1), other_agent2=(2, agent2), other_agent3=(4, agent4)  , other_agent4=(5, agent5),learning_rate=step_size, kappa=kappa)
+        a3_p1_gradnorm.append(agent3.update_pi1_SGD_distributed(agent_index=3, P=P, z=z3, other_agent1=(1, agent1), other_agent2=(2, agent2), other_agent3=(4, agent4)  ,learning_rate=step_size, kappa=kappa))
         #print('update pi2')
-        agent3.update_pi2_SGD_distributed(agent_index=3, P=P, z=z3, other_agent1=(1, agent1), other_agent2=(2, agent2),  other_agent3=(4, agent4) , other_agent4=(5, agent5),learning_rate=step_size, kappa=kappa)
+        a3_p2_gradnorm.append(agent3.update_pi2_SGD_distributed(agent_index=3, P=P, z=z3, other_agent1=(1, agent1), other_agent2=(2, agent2),  other_agent3=(4, agent4) ,learning_rate=step_size, kappa=kappa))
         #print('update pi1')
-        agent4.update_pi1_SGD_distributed(agent_index=4, P=P, z=z4, other_agent1=(1, agent1), other_agent2=(2, agent2), other_agent3=(3, agent3)  , other_agent4=(5, agent5),learning_rate=step_size, kappa=kappa)
+        a4_p1_gradnorm.append(agent4.update_pi1_SGD_distributed(agent_index=4, P=P, z=z4, other_agent1=(1, agent1), other_agent2=(2, agent2), other_agent3=(3, agent3)  ,learning_rate=step_size, kappa=kappa))
         #print('update pi2')
-        agent4.update_pi2_SGD_distributed(agent_index=4, P=P, z=z4, other_agent1=(1, agent1), other_agent2=(2, agent2), other_agent3=(3, agent3) , other_agent4=(5, agent5), learning_rate=step_size, kappa=kappa)
+        a4_p2_gradnorm.append(agent4.update_pi2_SGD_distributed(agent_index=4, P=P, z=z4, other_agent1=(1, agent1), other_agent2=(2, agent2), other_agent3=(3, agent3) , learning_rate=step_size, kappa=kappa))
         #print('update pi1')
-        agent5.update_pi1_SGD_distributed(agent_index=5, P=P, z=z5, other_agent1=(1, agent1), other_agent2=(2, agent2), other_agent3=(3, agent3)  , other_agent4=(4, agent4),learning_rate=step_size, kappa=kappa)
+        #agent5.update_pi1_SGD_distributed(agent_index=5, P=P, z=z5, other_agent1=(1, agent1), other_agent2=(2, agent2), other_agent3=(3, agent3)  , other_agent4=(4, agent4),learning_rate=step_size, kappa=kappa)
         #print('update pi2')
-        agent5.update_pi2_SGD_distributed(agent_index=5, P=P, z=z5, other_agent1=(1, agent1), other_agent2=(2, agent2), other_agent3=(3, agent3) , other_agent4=(4, agent4), learning_rate=step_size, kappa=kappa)
+        #agent5.update_pi2_SGD_distributed(agent_index=5, P=P, z=z5, other_agent1=(1, agent1), other_agent2=(2, agent2), other_agent3=(3, agent3) , other_agent4=(4, agent4), learning_rate=step_size, kappa=kappa)
 
        
        
@@ -293,59 +301,60 @@ def distributed_RARL(Lambda, episodes=20001, step_size=0.0003, slip_prob = 0.0):
         new_z2 = z2
         new_z3 = z3
         new_z4 = z4
-        new_z5 = z5
+        #new_z5 = z5
 
         """重み行列Pの固有値1の左固有ベクトルの推定値zの更新"""
-        for i in range(5):
-            new_z1[i] = P[0][0] * z1[i] + P[0][1] * z2[i] + P[0][2] * z3[i] + P[0][3] * z4[i] + P[0][4] * z5[i] 
-            new_z2[i] = P[1][0] * z1[i] + P[1][1] * z2[i] + P[1][2] * z3[i] + P[1][3] * z4[i] + P[1][4] * z5[i] 
-            new_z3[i] = P[2][0] * z1[i] + P[2][1] * z2[i] + P[2][2] * z3[i] + P[2][3] * z4[i] + P[2][4] * z5[i] 
-            new_z4[i] = P[3][0] * z1[i] + P[3][1] * z2[i] + P[3][2] * z3[i] + P[3][3] * z4[i] + P[3][4] * z5[i] 
-            new_z5[i] = P[4][0] * z1[i] + P[4][1] * z2[i] + P[4][2] * z3[i] + P[4][3] * z4[i] + P[4][4] * z5[i]
+        for i in range(4):
+            new_z1[i] = P[0][0] * z1[i] + P[0][1] * z2[i] + P[0][2] * z3[i] + P[0][3] * z4[i] 
+            new_z2[i] = P[1][0] * z1[i] + P[1][1] * z2[i] + P[1][2] * z3[i] + P[1][3] * z4[i]
+            new_z3[i] = P[2][0] * z1[i] + P[2][1] * z2[i] + P[2][2] * z3[i] + P[2][3] * z4[i]
+            new_z4[i] = P[3][0] * z1[i] + P[3][1] * z2[i] + P[3][2] * z3[i] + P[3][3] * z4[i]
+            #new_z5[i] = P[4][0] * z1[i] + P[4][1] * z2[i] + P[4][2] * z3[i] + P[4][3] * z4[i] + P[4][4] * z5[i]
         z1 = new_z1
         z2 = new_z2
         z3 = new_z3
         z4 = new_z4
-        z5 = new_z5
+        #z5 = new_z5
         #メモリーをクリア
         agent1.memory = []
         agent2.memory = []
         agent3.memory = []
         agent4.memory = []
-        agent5.memory = []
+        #agent5.memory = []
         
 
         a1_data = {}
         a2_data = {}
         a3_data = {}
         a4_data = {}
-        a5_data = {}
+        #a5_data = {}
         
 
         a1_cost_history.append(a1_total_cost)
         a1_data['cost'] = a1_total_cost
         a1_data['episode'] = episode
         a1_cost_list.append(a1_data)
-
+        
         a2_cost_history.append(a2_total_cost)
         a2_data['cost'] = a2_total_cost
         a2_data['episode'] = episode
         a2_cost_list.append(a2_data)
-
+        
         a3_cost_history.append(a3_total_cost)
         a3_data['cost'] = a3_total_cost
         a3_data['episode'] = episode
         a3_cost_list.append(a3_data)
+        
 
         a4_cost_history.append(a4_total_cost)
         a4_data['cost'] = a4_total_cost
         a4_data['episode'] = episode
         a4_cost_list.append(a4_data)
-
-        a5_cost_history.append(a5_total_cost)
+        
+        """a5_cost_history.append(a5_total_cost)
         a5_data['cost'] = a5_total_cost
         a5_data['episode'] = episode
-        a5_cost_list.append(a5_data)
+        a5_cost_list.append(a5_data)"""
 
         
 
@@ -354,7 +363,7 @@ def distributed_RARL(Lambda, episodes=20001, step_size=0.0003, slip_prob = 0.0):
             print("agent2 : episode :{}, total cost : {:.1f}, start_position : {}, step_size : {}, kappa : {}, time : {}".format(episode, a2_total_cost, a2_start_position, step_size, kappa, a2_t))
             print("agent3 : episode :{}, total cost : {:.1f}, start_position : {}, step_size : {}, kappa : {}, time : {}".format(episode, a3_total_cost, a3_start_position, step_size, kappa, a3_t))
             print("agent4 : episode :{}, total cost : {:.1f}, start_position : {}, step_size : {}, kappa : {}, time : {}".format(episode, a4_total_cost, a4_start_position, step_size, kappa, a4_t))
-            print("agent5 : episode :{}, total cost : {:.1f}, start_position : {}, step_size : {}, kappa : {}, time : {}".format(episode, a5_total_cost, a5_start_position, step_size, kappa, a5_t))
+            #print("agent5 : episode :{}, total cost : {:.1f}, start_position : {}, step_size : {}, kappa : {}, time : {}".format(episode, a5_total_cost, a5_start_position, step_size, kappa, a5_t))
             
             
         if episode % 100 == 0:
@@ -381,11 +390,11 @@ def distributed_RARL(Lambda, episodes=20001, step_size=0.0003, slip_prob = 0.0):
                 print(f'state : {s}\npi1 : {agent4.pi1.softmax_probs()[s]}')"""
             for s in range(agent4.state_size):
                 print(f'state : {s}\npi2 : {agent4.pi2.softmax_probs()[s]}')
-            print('agent5')
+            #print('agent5')
             """for s in range(agent4.state_size):
                 print(f'state : {s}\npi1 : {agent4.pi1.softmax_probs()[s]}')"""
-            for s in range(agent4.state_size):
-                print(f'state : {s}\npi2 : {agent5.pi2.softmax_probs()[s]}')
+            """for s in range(agent4.state_size):
+                print(f'state : {s}\npi2 : {agent5.pi2.softmax_probs()[s]}')"""
 
             
 
@@ -398,8 +407,16 @@ def distributed_RARL(Lambda, episodes=20001, step_size=0.0003, slip_prob = 0.0):
     # DataFrame
     df4 = pd.DataFrame(a4_cost_list)
     # DataFrame
-    df5 = pd.DataFrame(a5_cost_list)
-    
+    #df5 = pd.DataFrame(a5_cost_list)
+
+    df_grad_a1_p1 = pd.DataFrame(a1_p1_gradnorm)
+    df_grad_a1_p2 = pd.DataFrame(a1_p2_gradnorm)
+    df_grad_a2_p1 = pd.DataFrame(a2_p1_gradnorm)
+    df_grad_a2_p2 = pd.DataFrame(a2_p2_gradnorm)
+    df_grad_a3_p1 = pd.DataFrame(a3_p1_gradnorm)
+    df_grad_a3_p2 = pd.DataFrame(a3_p2_gradnorm)
+    df_grad_a4_p1 = pd.DataFrame(a4_p1_gradnorm)
+    df_grad_a4_p2 = pd.DataFrame(a4_p2_gradnorm)
     # ベースフォルダ
     base_folder = "数値データ"
 
@@ -430,9 +447,16 @@ def distributed_RARL(Lambda, episodes=20001, step_size=0.0003, slip_prob = 0.0):
     a4_csv_file_path = os.path.join(output_folder, "a4_cost_history.csv")
     df4.to_csv(a4_csv_file_path, index=False)
     # DataFrame を保存するファイルパスを指定
-    a5_csv_file_path = os.path.join(output_folder, "a5_cost_history.csv")
-    df5.to_csv(a5_csv_file_path, index=False)
-
+    """a5_csv_file_path = os.path.join(output_folder, "a5_cost_history.csv")
+    df5.to_csv(a5_csv_file_path, index=False)"""
+    df_grad_a1_p1.to_csv(os.path.join(output_folder, 'a1_p1_grad.csv'))
+    df_grad_a1_p2.to_csv(os.path.join(output_folder, 'a1_p2_grad.csv'))
+    df_grad_a2_p1.to_csv(os.path.join(output_folder, 'a2_p1_grad.csv'))
+    df_grad_a2_p2.to_csv(os.path.join(output_folder, 'a2_p2_grad.csv'))
+    df_grad_a3_p1.to_csv(os.path.join(output_folder, 'a3_p1_grad.csv'))
+    df_grad_a3_p2.to_csv(os.path.join(output_folder, 'a3_p2_grad.csv'))
+    df_grad_a4_p1.to_csv(os.path.join(output_folder, 'a4_p1_grad.csv'))
+    df_grad_a4_p2.to_csv(os.path.join(output_folder, 'a4_p2_grad.csv'))
     
 
     # プロット
@@ -476,13 +500,13 @@ def distributed_RARL(Lambda, episodes=20001, step_size=0.0003, slip_prob = 0.0):
     #plt.show()
 
      # プロット
-    plt.plot(a5_cost_history)
+    """plt.plot(a5_cost_history)
     plt.xlabel('Episode')
     plt.ylabel('Total Cost')
     plt.title('Cost History')
     # プロット画像をサブフォルダ内に保存
     output_path = os.path.join(output_folder, 'a5_cost_history.png')
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')  # 解像度を指定して保存
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')  # 解像度を指定して保存"""
     #plt.show()
 
     
@@ -563,7 +587,7 @@ def distributed_RARL(Lambda, episodes=20001, step_size=0.0003, slip_prob = 0.0):
     a5_pi2_file_path = os.path.join(output_folder, "a5_pi2.txt")
 
     # pi1.txt の内容
-    with open(a5_pi1_file_path, "w") as file:
+    """with open(a5_pi1_file_path, "w") as file:
         for s in range(agent5.state_size):
                 file.write(f'state : {s}\npi1 : {agent5.pi1.softmax_probs()[s]}\n')
 
@@ -571,7 +595,7 @@ def distributed_RARL(Lambda, episodes=20001, step_size=0.0003, slip_prob = 0.0):
     with open(a5_pi2_file_path, "w") as file:
         for s in range(agent5.state_size):
             for eta_index in range(agent5.eta_size):
-                file.write(f'state : {s}\neta : {agent5.eta_space[eta_index]}\npi2 : {agent5.pi2.softmax_probs()[s]}\n')
+                file.write(f'state : {s}\neta : {agent5.eta_space[eta_index]}\npi2 : {agent5.pi2.softmax_probs()[s]}\n')"""
     
     
 

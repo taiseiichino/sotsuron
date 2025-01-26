@@ -60,7 +60,7 @@ class StochasticCliffWalkingEnv():
         info = {}
         return self._get_state(), info
 
-    def step(self, action, agent_number):
+    def step(self, action, agent_number=1):
         moves = {
             0: (-1, 0),  # 上
             1: (0, 1),   # 右
@@ -95,14 +95,12 @@ class StochasticCliffWalkingEnv():
             if agent_number == 1:
                 self.current_pos = self.start
             elif agent_number == 2:
-                self.current_pos = np.array([6,3], dtype=np.int64)
+                self.current_pos = np.array([5,2], dtype=np.int64)
             elif agent_number == 3:
                 self.current_pos = np.array([2,0], dtype=np.int64)
-            elif agent_number == 4:
-                self.current_pos = np.array([0,1], dtype=np.int64)
 
-            elif agent_number == 5:
-                self.current_pos = np.array([2,0], dtype=np.int64)
+            elif agent_number == 4:
+                self.current_pos = np.array([0,0], dtype=np.int64)
     
         elif np.array_equal(self.current_pos, self.goal):  # ゴール
             cost += 0
