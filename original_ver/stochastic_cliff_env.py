@@ -1,11 +1,11 @@
 #オリジナルのcliffwalk environmentのクラスを定義する
 
-import gym
+
 from gym import spaces
 import numpy as np
 import random
 
-class StochasticCliffWalkingEnv(gym.Env):
+class StochasticCliffWalkingEnv():
     def __init__(self, grid, slip_prob=0.1):
         super().__init__()
         self.grid = grid
@@ -20,7 +20,7 @@ class StochasticCliffWalkingEnv(gym.Env):
         # 観測空間とアクション空間を定義
         self.observation_space = spaces.Discrete(self.n_rows * self.n_cols)#spaces.Discreteクラスで状態を[0,1,2,3]のように管理する。.nで状態総数を参照できる
         self.action_space = spaces.Discrete(4)  # 上, 右, 下, 左
-        self.cost_space = [1, 5, 20]#通常マスは1,崖マスは100
+        self.cost_space = [1, 5]#通常マスは1,崖マスは100
         self.eta_space = spaces.Discrete(len(self.cost_space)) #コストの種類の数と同じ。
 
     def reset(self, seed=None, options=None, start_pos=None):#start_posはgridのindexをリストで渡す
@@ -59,7 +59,7 @@ class StochasticCliffWalkingEnv(gym.Env):
         info = {}
         return self._get_state(), info
 
-    def step(self, action):
+    def step(self, action, agent_number):
         moves = {
             0: (-1, 0),  # 上
             1: (0, 1),   # 右
@@ -75,9 +75,7 @@ class StochasticCliffWalkingEnv(gym.Env):
         if self.is_above_cliff():
             if random.uniform(0, 1) < self.slip_prob:
                 new_pos = self.current_pos + np.array([1, 0])  # 崖（下のセル）に移動
-        if self.is_above_ccliff():
-            if random.uniform(0, 1) < self.slip_prob:
-                new_pos = self.current_pos + np.array([1, 0])  # 崖（下のセル）に移動
+
         cost = 0
         # 境界チェック
         if (
@@ -93,12 +91,12 @@ class StochasticCliffWalkingEnv(gym.Env):
         if cell == 'C':  # 崖
             cost += self.cost_space[1]
             terminated = False#あとでTrueに変える
-            self.current_pos = self.start
-
-        elif cell == 'CC':  # 崖
-            cost += self.cost_space[2]
-            terminated = False#あとでTrueに変える
-            self.current_pos = self.start
+            if agent_number == 1:
+                self.current_pos = self.start
+            elif agent_number == 2:
+                self.current_pos = np.array([2,2], dtype=np.int64)
+            elif agent_number == 3:
+                self.current_pos = np.array([1,2], dtype=np.int64)
         elif np.array_equal(self.current_pos, self.goal):  # ゴール
             cost += 0
             terminated = True#ゴールして終了したい場合はTrue
@@ -134,16 +132,4 @@ class StochasticCliffWalkingEnv(gym.Env):
             0 <= below_pos[1] < self.n_cols
         ):
             return self.grid[tuple(below_pos)] == 'C'
-        return False
-    
-    def is_above_ccliff(self):
-        """
-        現在地がコストの大きい崖'CC'の上のセルかを判定
-        """
-        below_pos = self.current_pos + np.array([1, 0])
-        if (
-            0 <= below_pos[0] < self.n_rows and
-            0 <= below_pos[1] < self.n_cols
-        ):
-            return self.grid[tuple(below_pos)] == 'CC'
         return False

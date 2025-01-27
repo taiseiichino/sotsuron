@@ -1,12 +1,10 @@
 
 #他ファイルからのimport
 from cmath import cos
-from gym.envs.registration import register#環境の登録
 from stochastic_cliff_env import StochasticCliffWalkingEnv  # カスタム環境をインポート
 from custom_maps import get_custom_map#カスタムマップをインポート
-from policy_agent import Policy1, Policy2, Agent
+from policy_agent import Agent
 import math
-import gym#カスタム環境をロードするために必要
 import numpy as np
 import os
 from datetime import datetime
@@ -17,20 +15,14 @@ import matplotlib.pyplot as plt
     
 
 
-def distributed_RARL(Lambda, episodes=30001, step_size=0.0003):
+def distributed_RARL(Lambda, episodes=30001, step_size=0.001):
 
     # カスタムマップの定義
     custom_grid = get_custom_map()
 
-    # 環境を登録
-    register(
-        id='StochasticCliffWalking-v0',  # 環境ID
-        entry_point='stochastic_cliff_env:StochasticCliffWalkingEnv',  # 環境クラスへのパス
-        kwargs={'grid': custom_grid, 'slip_prob': 0.5},  # 環境に渡すパラメータ
-    )
 
     # 登録済みのカスタム環境をロード
-    env = gym.make('StochasticCliffWalking-v0')
+    env = StochasticCliffWalkingEnv(grid=custom_grid, slip_prob=0.1)
 
     # 環境をテスト
     # 環境を初期化
@@ -89,7 +81,7 @@ def distributed_RARL(Lambda, episodes=30001, step_size=0.0003):
             elif a1_t > 1:
                 #print(f'get_action_2前のstate:{state}')#デバッグ用
                 a1_action, a1_nexteta_index= agent1.get_action_2(a1_state_index, a1_eta_index)#a_t,Ieta_t+1を取得(actionはint, probはvariable(float))
-            a1_next_state, a1_cost, a1_terminated, a1_truncated, a1_info_nan = env.step(a1_action)#s_t+1,c_tを取得(next_stateはnp.int64)
+            a1_next_state, a1_cost, a1_terminated, a1_truncated, a1_info_nan = env.step(a1_action, 1)#s_t+1,c_tを取得(next_stateはnp.int64)
             #print(f't : {t}')
             #print(f'とったaction : {action}')
             #print(f'現在位置state : {next_state}')
@@ -122,7 +114,7 @@ def distributed_RARL(Lambda, episodes=30001, step_size=0.0003):
             elif a2_t > 1:
                 #print(f'get_action_2前のstate:{state}')#デバッグ用
                 a2_action, a2_nexteta_index= agent2.get_action_2(a2_state_index, a2_eta_index)#a_t,Ieta_t+1を取得(actionはint, probはvariable(float))
-            a2_next_state, a2_cost, a2_terminated, a2_truncated, a2_info_nan = env.step(a2_action)#s_t+1,c_tを取得(next_stateはnp.int64)
+            a2_next_state, a2_cost, a2_terminated, a2_truncated, a2_info_nan = env.step(a2_action, 2)#s_t+1,c_tを取得(next_stateはnp.int64)
             #print(f't : {t}')
             #print(f'とったaction : {action}')
             #print(f'現在位置state : {next_state}')
@@ -155,7 +147,7 @@ def distributed_RARL(Lambda, episodes=30001, step_size=0.0003):
             elif a3_t > 1:
                 #print(f'get_action_2前のstate:{state}')#デバッグ用
                 a3_action, a3_nexteta_index= agent3.get_action_2(a3_state_index, a3_eta_index)#a_t,Ieta_t+1を取得(actionはint, probはvariable(float))
-            a3_next_state, a3_cost, a3_terminated, a3_truncated, a3_info_nan = env.step(a3_action)#s_t+1,c_tを取得(next_stateはnp.int64)
+            a3_next_state, a3_cost, a3_terminated, a3_truncated, a3_info_nan = env.step(a3_action, 3)#s_t+1,c_tを取得(next_stateはnp.int64)
             #print(f't : {t}')
             #print(f'とったaction : {action}')
             #print(f'現在位置state : {next_state}')
@@ -317,7 +309,7 @@ def distributed_RARL(Lambda, episodes=30001, step_size=0.0003):
 
     # データを書き込む
     with open(file_path, "w") as file:
-        file.write(f'episodes : {episodes}\nkappa : {agent1.kappa}\ngamma : {agent1.gamma}\nlambda : {agent1.Lambda}\nalpha_risk : {agent1.alpha_risk}\nmax_step : {200}\nstep_size : {step_size}')  # 数値データを記載
+        file.write(f'episodes : {episodes}\nkappa : {agent1.kappa}\ngamma : {agent1.gamma}\nlambda : {agent1.Lambda}\nalpha_risk : {agent1.alpha_risk}\nmax_step : {200}\nstep_size : {step_size}\nslip_prob : {0.1}')  # 数値データを記載
 
 
 
